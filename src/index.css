@@ -1,0 +1,43 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* Set the size of the popup */
+html, body {
+  margin: 0;
+  font-family: 'Poppins';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 1080px; /* Adjust width as needed */
+  height: 900px; /* Adjust height as needed */
+}
+
+/* App container sizing */
+#root,
+.app,
+.content {
+  height: 100%;
+  width: 100%;
+  font-family: 'Poppins';
+  display: fixed;
+  flex-direction: column; /* Adjust as needed */
+  align-items: center; /* Center content within popup */
+  justify-content: center;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e0e0e0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-track:hover {
+  background: #555;
+}
