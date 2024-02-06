@@ -7,7 +7,7 @@ html, body {
   font-family: 'Poppins';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  width: 1080px; /* Adjust width as needed */
+  width: 300px; /* Adjust width as needed */
   height: 900px; /* Adjust height as needed */
 }
 
