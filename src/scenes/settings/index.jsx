@@ -12,18 +12,15 @@ import {
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import * as yup from "yup";
+import Header from '../../components/Header';
 
 const initialValues = {
-    facebookUsername: "",
-    facebookPassword: "",
     instagramUsername: "",
     instagramPassword: "",
     agencentricToken: "",
 };
 
 const validationSchema = yup.object().shape({
-    facebookUsername: yup.string().required("Required"),
-    facebookPassword: yup.string().required("Required"),
     instagramUsername: yup.string().required("Required"),
     instagramPassword: yup.string().required("Required"),
     agencentricToken: yup.string().required("Required"),
@@ -37,63 +34,13 @@ const SettingsPage = () => {
     };
 
     return (
-        <Container maxWidth="md">
+        <Container>
+            <Box m="20px">
+                <Header title="Settings" subtitle="Manage your settings" />
+            </Box>
             <Box my={4}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    User Settings
-                </Typography>
-
                 <Grid container spacing={2}>
                     {/* Facebook Connect Form */}
-                    <Grid item xs={12}>
-                        <Paper elevation={3}>
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="h6" component="h2" gutterBottom>
-                                        Facebook Connect
-                                    </Typography>
-                                    <Formik
-                                        initialValues={{ ...initialValues }}
-                                        validationSchema={validationSchema}
-                                        onSubmit={handleFormSubmit}
-                                    >
-                                        <Form>
-                                            <Field name="facebookUsername">
-                                                {({ field }) => (
-                                                    <TextField
-                                                        {...field}
-                                                        label="Username"
-                                                        variant="outlined"
-                                                        fullWidth
-                                                        margin="normal"
-                                                    />
-                                                )}
-                                            </Field>
-                                            <Field name="facebookPassword">
-                                                {({ field }) => (
-                                                    <TextField
-                                                        {...field}
-                                                        label="Password"
-                                                        variant="outlined"
-                                                        fullWidth
-                                                        type="password"
-                                                        margin="normal"
-                                                    />
-                                                )}
-                                            </Field>
-                                            <Button
-                                                type="submit"
-                                                variant="contained"
-                                                color="primary"
-                                            >
-                                                Save
-                                            </Button>
-                                        </Form>
-                                    </Formik>
-                                </CardContent>
-                            </Card>
-                        </Paper>
-                    </Grid>
 
                     {/* Instagram Connect Form */}
                     <Grid item xs={12}>

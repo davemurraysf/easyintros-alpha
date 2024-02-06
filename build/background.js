@@ -1,41 +1,22 @@
-// DraggableCard.js
+// background.js
 
-import React from 'react';
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-  LinearProgress,
-  Button,
-  Grid,
-} from '@mui/material';
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'startScraping') {
+    startScrapingWebsites();
+  }
+});
 
-const DraggableCard = () => {
-  const handleStartClick = () => {
-    // Send a message to the background script to trigger the action
-    chrome.runtime.sendMessage({ action: 'startScraping' });
-  };
+function startScrapingWebsites() {
+  const websites = ['https://example.com', 'https://example2.com', /* Add your URLs here */];
 
-  return (
-    <Card sx={{ mb: 1, maxWidth: 300 }}>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Website Scraper
-        </Typography>
-        <Box m={1}>
-          <LinearProgress variant="determinate" value={0} />
-        </Box>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item>
-            <Button variant="contained" color="primary" onClick={handleStartClick}>
-              Start
-            </Button>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-};
+  websites.forEach(async (url) => {
+    try {
+      const response = await fetch(url);
+      const headers = response.headers;
+      console.log(`Headers for ${url}:`, headers);
+    } catch (error) {
+      console.error(`Error while fetching ${url}:`, error);
+    }
+  });
+}
 
-export default DraggableCard;
