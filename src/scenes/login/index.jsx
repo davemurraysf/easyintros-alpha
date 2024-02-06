@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -21,8 +22,9 @@ const userSchema = yup.object().shape({
 });
 
 const Login = ({ onLoginSuccess }) => {
-    const [showPassword, setShowPassword] = useState(false); // Add this state variable
+    const [showPassword, setShowPassword] = useState(false);
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const navigate = useNavigate();
 
     const handleFormSubmit = async (values) => {
         try {
@@ -35,7 +37,7 @@ const Login = ({ onLoginSuccess }) => {
                 }),
             });
 
-            const data = await response.json();
+            const data = await response.json(); // Store the response data
 
             if (data.status === 'success') {
                 const currentTime = Math.floor(Date.now() / 1000); 
@@ -73,6 +75,10 @@ const Login = ({ onLoginSuccess }) => {
                     console.error('Error fetching additional user info:', error);
                   }
                 console.log("User Data after login:", userData)
+
+                // After successful login, navigate to the dashboard ("/")
+                navigate("/");
+
                 onLoginSuccess();
             } else {
                 // Handle login failure
@@ -84,66 +90,77 @@ const Login = ({ onLoginSuccess }) => {
     };
 
     return (
-        <Box sx={{mx: "auto", width: 200}}>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center', // Center horizontally
+                justifyContent: 'center', // Center vertically
+                height: '100vh', // 100% of the viewport height
+            }}
+        >
             <Header title="Login" subtitle="Start Cold Outreach Today!" />
-            <Formik
-                initialValues={initialValues}
-                validationSchema={userSchema}
-                onSubmit={handleFormSubmit}
-            >
-                {({ values, errors, touched, handleChange, handleSubmit }) => (
-                    <form onSubmit={handleSubmit}>
-                        <Box 
-                            display="grid" 
-                            gap="30px" 
-                            gridTemplateColumns="repeat(2, minmax(0, 1fr))"
-                            sx={{ "& > div": { gridColumn: isNonMobile ? undefined : "span 2" } }}
-                        >
-                            <TextField 
-                                fullWidth
-                                variant="filled"
-                                type="text"
-                                label="Email"
-                                onBlur={handleChange}
-                                onChange={handleChange}
-                                value={values.email}
-                                name="email"
-                                error={!!touched.email && !!errors.email}
-                                helperText={touched.email && errors.email}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-                            <TextField 
-                                fullWidth
-                                variant="filled"
-                                type={showPassword ? "text" : "password"} // Toggle the input type
-                                label="Password"
-                                onBlur={handleChange}
-                                onChange={handleChange}
-                                value={values.password}
-                                name="password"
-                                error={!!touched.password && !!errors.password}
-                                helperText={touched.password && errors.password}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-                            <Button
-                                onClick={() => setShowPassword(!showPassword)} // Toggle the state on button click
-                                color="primary"
-                                variant="text"
-                                sx={{ gridColumn: "span 2", textAlign: "left" }}
+            <Box sx={{ mx: "auto", width: 200 }}>
+                <Formik
+                    initialValues={initialValues}
+                    validationSchema={userSchema}
+                    onSubmit={handleFormSubmit}
+                >
+                    {({ values, errors, touched, handleChange, handleSubmit }) => (
+                        <form onSubmit={handleSubmit}>
+                            <Box
+                                display="grid"
+                                gap="30px"
+                                gridTemplateColumns="repeat(2, minmax(0, 1fr))"
+                                sx={{ "& > div": { gridColumn: isNonMobile ? undefined : "span 2" } }}
                             >
-                                {showPassword ? "Hide Password" : "Show Password"}
-                            </Button>
-                        </Box>
-                        <Box display="flex" justifyContent="center" mt="20px">
-                            <Button type="submit" color="secondary" variant="contained">
-                                Login
-                            </Button>
-                        </Box>
-                    </form>
-                )}
-            </Formik>
+                                <TextField
+                                    fullWidth
+                                    variant="filled"
+                                    type="text"
+                                    label="Email"
+                                    onBlur={handleChange}
+                                    onChange={handleChange}
+                                    value={values.email}
+                                    name="email"
+                                    error={!!touched.email && !!errors.email}
+                                    helperText={touched.email && errors.email}
+                                    sx={{ gridColumn: "span 2" }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    variant="filled"
+                                    type={showPassword ? "text" : "password"}
+                                    label="Password"
+                                    onBlur={handleChange}
+                                    onChange={handleChange}
+                                    value={values.password}
+                                    name="password"
+                                    error={!!touched.password && !!errors.password}
+                                    helperText={touched.password && errors.password}
+                                    sx={{ gridColumn: "span 2" }}
+                                />
+                                <Button
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    color="primary"
+                                    variant="text"
+                                    sx={{ gridColumn: "span 2", textAlign: "left" }}
+                                >
+                                    {showPassword ? "Hide Password" : "Show Password"}
+                                </Button>
+                            </Box>
+                            <Box display="flex" justifyContent="center" mt="20px">
+                                <Button type="submit" color="secondary" variant="contained">
+                                    Login
+                                </Button>
+                            </Box>
+                        </form>
+                    )}
+                </Formik>
+            </Box>
         </Box>
     );
 };
 
 export default Login;
+
