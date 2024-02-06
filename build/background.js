@@ -1,22 +1,26 @@
-// background.js
+
+const { chrome } = require("chrome");
+
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('Extension installed');
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'startScraping') {
-    startScrapingWebsites();
+  if (message.action === 'start_navigation' && sender && sender.tab && sender.tab.id) {
+    chrome.scripting.executeScript({
+      target: { tabId: sender.tab.id },
+      function: startNavigation,
+    });
+  } else {
+    console.error('Invalid message or sender information.');
   }
 });
 
-function startScrapingWebsites() {
-  const websites = ['https://example.com', 'https://example2.com', /* Add your URLs here */];
+function startNavigation() {
+  // Change this URL to the one you want to navigate to
+  const targetUrl = 'https://example.com';
 
-  websites.forEach(async (url) => {
-    try {
-      const response = await fetch(url);
-      const headers = response.headers;
-      console.log(`Headers for ${url}:`, headers);
-    } catch (error) {
-      console.error(`Error while fetching ${url}:`, error);
-    }
-  });
+  // Navigate to the target URL
+  chrome.tabs.update({ url: targetUrl });
 }
 

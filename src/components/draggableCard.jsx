@@ -85,6 +85,7 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, status,
 
   // Function to handle the "Start" button click
 // Function to handle the "Start" button click
+// Function to handle the "Start" button click
 const handleStartClick = () => {
   // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
   if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -95,6 +96,7 @@ const handleStartClick = () => {
     console.error('The "chrome.runtime" API is not available in this environment.');
   }
 };
+
 
 
 

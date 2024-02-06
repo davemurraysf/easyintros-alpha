@@ -1,22 +1,24 @@
 // background.js
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'startScraping') {
-    startScrapingWebsites();
-  }
+// Listener for the extension installation event
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('Extension installed');
 });
 
-function startScrapingWebsites() {
-  const websites = ['https://example.com', 'https://example2.com', /* Add your URLs here */];
+// Listener for messages from other parts of the extension
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'start_navigation' && sender.tab) {
+    // Navigate to the target URL
+    const targetUrl = 'https://example.com'; // Change this URL to your target
+    chrome.tabs.update(sender.tab.id, { url: targetUrl });
 
-  websites.forEach(async (url) => {
-    try {
-      const response = await fetch(url);
-      const headers = response.headers;
-      console.log(`Headers for ${url}:`, headers);
-    } catch (error) {
-      console.error(`Error while fetching ${url}:`, error);
-    }
-  });
-}
-
+    // Optionally send a response back to the sender
+    sendResponse({status: 'navigation_started'});
+  } else {
+    console.error('Invalid message or sender information.');
+    // Always send a response back, even if it's an error
+    sendResponse({error: 'Invalid message or sender information.'});
+  }
+  // Return true to indicate you wish to send a response asynchronously
+  return true;
+});
