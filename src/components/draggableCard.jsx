@@ -85,8 +85,17 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, status,
 
   // Function to handle the "Start" button click
   const handleStartClick = () => {
-    // Add logic to start the operation associated with this card
+    // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      // Send a message to the background script to trigger the action
+      chrome.runtime.sendMessage({ action: 'startScraping' });
+    } else {
+      // Handle the case where 'chrome' is not defined or doesn't have the 'runtime' property
+      console.error('The "chrome.runtime" API is not available in this environment.');
+    }
   };
+
+
 
   drag(drop(ref));
 
