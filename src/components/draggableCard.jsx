@@ -14,7 +14,19 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useDrag, useDrop } from 'react-dnd';
-import { sendMessageToBackground, listenForBackgroundMessages } from '../data/controller';
+
+// Function to send a message to the background script
+const sendMessageToBackground = async (message) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else {
+        resolve(response);
+      }
+    });
+  });
+};
 
 // Define your draggable item types
 const ItemTypes = {
@@ -74,23 +86,30 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   // State to hold the status
   const [status, setStatus] = useState('active');
 
+  // Function to update status in Chrome storage
+  const updateStatusInStorage = (newStatus) => {
+    chrome.storage.local.set({ status: newStatus }, () => {
+      console.log('Status updated in Chrome storage:', newStatus);
+    });
+  };
+
   // Effect to listen for messages from the background script
   useEffect(() => {
     // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       const handleMessage = (message) => {
-        console.log('Message recieved')
-        if (message && message.status === 'navigation_completed') {
-          setStatus('finished');
+        console.log('Message received:', message); // Debugging: Log received message
+        if (message && message.status) {
+          setStatus(message.status);
         }
       };
 
       // Listen for messages from the background script
-      listenForBackgroundMessages(handleMessage);
+      chrome.runtime.onMessage.addListener(handleMessage);
 
       // Clean up the listener when component unmounts
       return () => {
-        // Remove the listener
+        chrome.runtime.onMessage.removeListener(handleMessage);
       };
     } else {
       console.warn('Chrome runtime API is not available.');
@@ -101,7 +120,15 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   const handleStartClick = async () => {
     try {
       // Send a message to the background script to trigger the navigation action
+      console.log('Sending message to background script...');
       await sendMessageToBackground({ action: 'start_navigation' });
+      console.log('Message sent to background script.'); // Debugging: Log message sent
+
+      // Update status locally
+      setStatus('pending');
+
+      // Update status in Chrome storage
+      updateStatusInStorage('pending');
     } catch (error) {
       console.error('Error sending message to background script:', error.message);
     }
@@ -136,6 +163,8 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
 };
 
 export default DraggableCard;
+
+
 
 
 
