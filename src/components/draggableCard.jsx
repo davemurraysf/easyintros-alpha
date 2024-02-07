@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ const ItemTypes = {
 };
 
 // Draggable Card Component
-const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, status, type = 'active' }) => {
+const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 'active' }) => {
   const ref = useRef(null);
   const [, drop] = useDrop({
     accept: ItemTypes.CARD,
@@ -70,36 +70,40 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, status,
     },
   };
 
-  // Define a function to get the status indicator based on the 'status' prop
-  const getStatusIndicator = () => {
-    const statusData = dummyStatus[status] || null;
-    if (statusData) {
-      return (
-        <Button variant="contained" color={statusData.color} startIcon={statusData.icon}>
-          {statusData.text}
-        </Button>
-      );
+  // State to hold the status
+  const [status, setStatus] = useState('active');
+
+  // Effect to listen for messages from the background script
+  useEffect(() => {
+    // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      const handleMessage = (message) => {
+        if (message && message.status === 'navigation_completed') {
+          setStatus('finished');
+        }
+      };
+
+      chrome.runtime.onMessage.addListener(handleMessage);
+
+      return () => {
+        chrome.runtime.onMessage.removeListener(handleMessage);
+      };
+    } else {
+      console.warn('Chrome runtime API is not available.');
     }
-    return null;
-  };
+  }, []);
 
   // Function to handle the "Start" button click
-// Function to handle the "Start" button click
-// Function to handle the "Start" button click
-const handleStartClick = () => {
-  // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    // Send a message to the background script to trigger the navigation action
-    chrome.runtime.sendMessage({ action: 'start_navigation' });
-  } else {
-    // Handle the case where 'chrome' is not defined or doesn't have the 'runtime' property
-    console.error('The "chrome.runtime" API is not available in this environment.');
-  }
-};
-
-
-
-
+  const handleStartClick = () => {
+    // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      // Send a message to the background script to trigger the navigation action
+      chrome.runtime.sendMessage({ action: 'start_navigation' });
+    } else {
+      // Handle the case where 'chrome' is not defined or doesn't have the 'runtime' property
+      console.error('The "chrome.runtime" API is not available in this environment.');
+    }
+  };
 
   drag(drop(ref));
 
@@ -114,7 +118,9 @@ const handleStartClick = () => {
         </Box>
         <Grid container alignItems="center" spacing={2}>
           <Grid item>
-            {getStatusIndicator()}
+            <Button variant="contained" color={dummyStatus[status]?.color} startIcon={dummyStatus[status]?.icon}>
+              {dummyStatus[status]?.text}
+            </Button>
           </Grid>
           <Grid item>
             <Button variant="contained" color="primary" onClick={handleStartClick}>
@@ -128,11 +134,4 @@ const handleStartClick = () => {
 };
 
 export default DraggableCard;
-
-
-
-
-
-
-
 

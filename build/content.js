@@ -1,8 +1,10 @@
 // content.js
 
-// This is a placeholder content script
-// You can add your input action logic here
-console.log('Content script loaded');
+// Declare the variable outside the if statement
+let moreInformationLink = document.querySelector('a[href="https://www.iana.org/domains/example"]');
 
-// Example: Input text into a field with id "inputField"
-// document.getElementById('inputField').value = 'Hello, Chrome extension!';
+// Check if the variable has already been declared and select the link
+if (moreInformationLink) {
+    // Simulate a click on the "More information..." link
+    moreInformationLink.click();
+}
