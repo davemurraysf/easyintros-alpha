@@ -12,9 +12,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   
   // Your existing code to handle the message
   if (message.action === 'start_navigation') {
-      // Navigate to the target URL
+      // Navigate to the target URL in a new tab in the background
       const targetUrl = 'https://example.com'; // Change this URL to your target
-      chrome.tabs.update(sender.tab?.id, { url: targetUrl });
+      chrome.tabs.create({ url: targetUrl, active: false });
 
       // Optionally send a response back to the sender
       sendResponse({status: 'navigation_started'});
@@ -39,4 +39,3 @@ function isValidSender(sender) {
   // For example, check if the sender is from an expected origin or has required properties
   return true; // Placeholder return value
 }
-
