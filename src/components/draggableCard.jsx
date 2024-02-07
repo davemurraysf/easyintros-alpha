@@ -79,6 +79,7 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
     // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       const handleMessage = (message) => {
+        console.log('Message recieved')
         if (message && message.status === 'navigation_completed') {
           setStatus('finished');
         }

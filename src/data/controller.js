@@ -2,6 +2,7 @@
 
 // Function to send a message to the background script
 export const sendMessageToBackground = async (message) => {
+  console.log('Message sent via controller')
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
@@ -20,6 +21,7 @@ export const sendMessageToBackground = async (message) => {
       if (sender.id === chrome.runtime.id) {
         // Invoke the callback function and pass the message and sendResponse function
         callback(message, sendResponse);
+        console.log('Message recieved via controller')
         // Return true to indicate that the response will be sent asynchronously
         return true;
       }

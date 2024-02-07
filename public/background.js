@@ -10,8 +10,8 @@ chrome.runtime.onInstalled.addListener(() => {
   
   // Listener for messages from other parts of the extension
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log('Received message:', message);
-    console.log('Sender information:', sender);
+    //console.log('Received message:', message);
+    //console.log('Sender information:', sender);
   
     // Your existing code to handle the message
     if (message.action === 'start_navigation') {
