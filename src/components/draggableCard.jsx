@@ -14,6 +14,7 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useDrag, useDrop } from 'react-dnd';
+import { sendMessageToBackground, listenForBackgroundMessages } from '../data/controller';
 
 // Define your draggable item types
 const ItemTypes = {
@@ -83,10 +84,12 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
         }
       };
 
-      chrome.runtime.onMessage.addListener(handleMessage);
+      // Listen for messages from the background script
+      listenForBackgroundMessages(handleMessage);
 
+      // Clean up the listener when component unmounts
       return () => {
-        chrome.runtime.onMessage.removeListener(handleMessage);
+        // Remove the listener
       };
     } else {
       console.warn('Chrome runtime API is not available.');
@@ -94,14 +97,12 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   }, []);
 
   // Function to handle the "Start" button click
-  const handleStartClick = () => {
-    // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
+  const handleStartClick = async () => {
+    try {
       // Send a message to the background script to trigger the navigation action
-      chrome.runtime.sendMessage({ action: 'start_navigation' });
-    } else {
-      // Handle the case where 'chrome' is not defined or doesn't have the 'runtime' property
-      console.error('The "chrome.runtime" API is not available in this environment.');
+      await sendMessageToBackground({ action: 'start_navigation' });
+    } catch (error) {
+      console.error('Error sending message to background script:', error.message);
     }
   };
 
@@ -134,4 +135,6 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
 };
 
 export default DraggableCard;
+
+
 
