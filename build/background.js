@@ -40,6 +40,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Return true to indicate you wish to send a response asynchronously
     return true;
+  } else if (message.action === 'content_script_ready') {
+    // Content script is ready to receive messages, no action needed
+    console.log('Content script is ready');
   } else {
     console.error('Invalid message or sender information.');
     // Always send a response back, even if it's an error
@@ -56,10 +59,17 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
     // Send message to content script with the new status
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, { status: newStatus }, (response) => {
-          console.log('Message sent to content script with new status:', newStatus);
+      if (tabs && tabs.length > 0) {
+        const tabId = tabs[0].id;
+        chrome.tabs.sendMessage(tabId, { status: newStatus }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error sending message:', chrome.runtime.lastError.message);
+          } else {
+            console.log('Message sent to content script with new status:', newStatus);
+          }
         });
+      } else {
+        console.error('No active tab found.');
       }
     });
   }
@@ -76,6 +86,7 @@ function isValidSender(sender) {
   // For example, check if the sender is from an expected origin or has required properties
   return true; // Placeholder return value
 }
+
 
 
   
