@@ -86,6 +86,23 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   // State to hold the status
   const [status, setStatus] = useState('active');
 
+  useEffect(() => {
+    // Listener for changes in Chrome local storage
+    const handleStorageChange = (changes, area) => {
+      if (area === 'local' && changes.status) {
+        const newStatus = changes.status.newValue;
+        console.log('Status updated from Chrome storage:', newStatus);
+        setStatus(newStatus);
+      }
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    };
+  }, []);
+
   // Function to update status in Chrome storage
   const updateStatusInStorage = (newStatus) => {
     chrome.storage.local.set({ status: newStatus }, () => {
@@ -93,39 +110,12 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
     });
   };
 
-  // Effect to listen for messages from the background script
-  useEffect(() => {
-    // Check if the 'chrome' object is defined (i.e., in a Chrome extension context)
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
-      const handleMessage = (message) => {
-        console.log('Message received:', message); // Debugging: Log received message
-        if (message && message.status) {
-          setStatus(message.status);
-        }
-      };
-
-      // Listen for messages from the background script
-      chrome.runtime.onMessage.addListener(handleMessage);
-
-      // Clean up the listener when component unmounts
-      return () => {
-        chrome.runtime.onMessage.removeListener(handleMessage);
-      };
-    } else {
-      console.warn('Chrome runtime API is not available.');
-    }
-  }, []);
-
   // Function to handle the "Start" button click
   const handleStartClick = async () => {
     try {
-      // Send a message to the background script to trigger the navigation action
       console.log('Sending message to background script...');
       await sendMessageToBackground({ action: 'start_navigation' });
-      console.log('Message sent to background script.'); // Debugging: Log message sent
-
-      // Update status locally
-      setStatus('pending');
+      console.log('Message sent to background script.');
 
       // Update status in Chrome storage
       updateStatusInStorage('pending');
@@ -163,6 +153,7 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
 };
 
 export default DraggableCard;
+
 
 
 
