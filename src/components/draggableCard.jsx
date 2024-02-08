@@ -56,38 +56,17 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
     item: { id, index },
   });
 
-  const [text] = useState('Instagram Outreach'); // Change the title
-  const instagramProgress = 60; // Progress value for Instagram
-
-  // Define dummy status data
-  const dummyStatus = {
-    paused: {
-      text: 'Paused',
-      color: 'warning',
-      icon: <PauseIcon />,
-    },
-    stopped: {
-      text: 'Stopped',
-      color: 'error',
-      icon: <PlayArrowIcon />,
-    },
-    active: {
-      text: type === 'active' ? 'Active' : 'Default',
-      color: 'primary',
-      icon: <PlayArrowIcon />,
-    },
-    finished: {
-      text: 'Finished',
-      color: 'success',
-      icon: <CheckCircleOutlineIcon />,
-    },
-  };
-
-  // State to hold the status
   const [status, setStatus] = useState('active');
 
   useEffect(() => {
-    // Listener for changes in Chrome local storage
+    // Fetch the current status from local storage when the component mounts
+    chrome.storage.local.get(['status'], (result) => {
+      console.log('Status fetched from Chrome storage:', result.status);
+      if (result.status) {
+        setStatus(result.status);
+      }
+    });
+
     const handleStorageChange = (changes, area) => {
       if (area === 'local' && changes.status) {
         const newStatus = changes.status.newValue;
@@ -103,22 +82,11 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
     };
   }, []);
 
-  // Function to update status in Chrome storage
-  const updateStatusInStorage = (newStatus) => {
-    chrome.storage.local.set({ status: newStatus }, () => {
-      console.log('Status updated in Chrome storage:', newStatus);
-    });
-  };
-
-  // Function to handle the "Start" button click
   const handleStartClick = async () => {
     try {
       console.log('Sending message to background script...');
       await sendMessageToBackground({ action: 'start_navigation' });
       console.log('Message sent to background script.');
-
-      // Update status in Chrome storage
-      updateStatusInStorage('pending');
     } catch (error) {
       console.error('Error sending message to background script:', error.message);
     }
@@ -126,19 +94,28 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
 
   drag(drop(ref));
 
+  const dummyStatus = {
+    'navigation_completed': {
+      text: 'Completed',
+      color: 'success',
+      icon: <CheckCircleOutlineIcon />,
+    },
+    // Add other status cases as needed
+  };
+
   return (
     <Card ref={ref} sx={{ mb: 1, maxWidth: 300 }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
-          {text}
+          Instagram Outreach
         </Typography>
         <Box m={1}>
-          <LinearProgress variant="determinate" value={instagramProgress} />
+          <LinearProgress variant="determinate" value={60} />
         </Box>
         <Grid container alignItems="center" spacing={2}>
           <Grid item>
             <Button variant="contained" color={dummyStatus[status]?.color} startIcon={dummyStatus[status]?.icon}>
-              {dummyStatus[status]?.text}
+              {dummyStatus[status]?.text || status}
             </Button>
           </Grid>
           <Grid item>
