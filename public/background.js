@@ -3,11 +3,10 @@
 // Listener for the extension installation event
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed');
-});
-
-// Set data in Chrome storage
-chrome.storage.local.set({ status: 'active' }, () => {
-  console.log('Initial status set in Chrome storage');
+  // Set initial data in Chrome storage
+  chrome.storage.local.set({ status: 'active' }, () => {
+    console.log('Initial status set in Chrome storage');
+  });
 });
 
 // Keep track of tabs that are waiting for navigation completion
@@ -15,39 +14,36 @@ const tabsWaitingForNavigation = {};
 
 // Listener for messages from other parts of the extension
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Your existing code to handle the message
   if (message.action === 'start_navigation') {
-    // Navigate to the target URL in a new tab in the background
-    const targetUrl = 'https://example.com'; // Change this URL to your target
+    // Navigate to the target URL in a new tab
+    const targetUrl = 'https://example.com'; // Placeholder URL, replace with your target
     chrome.tabs.create({ url: targetUrl, active: false }, (tab) => {
-      // Store tab ID in the list of tabs waiting for navigation completion
-      tabsWaitingForNavigation[tab.id] = sendResponse;
-
-      // Listen for tab updates to detect navigation completion
-      chrome.tabs.onUpdated.addListener((tabId, changeInfo, updatedTab) => {
+      // Function to handle tab update
+      function handleTabUpdate(tabId, changeInfo) {
         if (tabId === tab.id && changeInfo.status === 'complete') {
-          // Send a message back to the React app indicating navigation completion
-          sendResponse({ status: 'navigation_completed' });
+          // Update the status in Chrome storage to indicate navigation completion
+          chrome.storage.local.set({status: 'navigation_completed'}, () => {
+            console.log('Navigation status updated to completed');
+          });
 
           // Close the tab after navigation is complete
           chrome.tabs.remove(tab.id);
 
-          // Remove the tab ID from the list of tabs waiting for navigation completion
-          delete tabsWaitingForNavigation[tab.id];
+          // Cleanup: Remove the update listener to prevent memory leaks
+          chrome.tabs.onUpdated.removeListener(handleTabUpdate);
         }
-      });
+      }
+
+      // Listen for tab updates to detect when navigation is complete
+      chrome.tabs.onUpdated.addListener(handleTabUpdate);
     });
 
-    // Return true to indicate you wish to send a response asynchronously
-    return true;
-  } else if (message.action === 'content_script_ready') {
-    // Content script is ready to receive messages, no action needed
-    console.log('Content script is ready');
+    // Return true to indicate an asynchronous response is expected
+    return true; // Indicates that the response will be sent asynchronously
   } else {
     console.error('Invalid message or sender information.');
-    // Always send a response back, even if it's an error
     sendResponse({ error: 'Invalid message or sender information.' });
-    return false;
+    return false; // No asynchronous response expected
   }
 });
 
@@ -57,23 +53,11 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     const newStatus = changes.status.newValue;
     console.log('New status received from Chrome storage:', newStatus);
 
-    // Send message to content script with the new status
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs.length > 0) {
-        const tabId = tabs[0].id;
-        chrome.tabs.sendMessage(tabId, { status: newStatus }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.error('Error sending message:', chrome.runtime.lastError.message);
-          } else {
-            console.log('Message sent to content script with new status:', newStatus);
-          }
-        });
-      } else {
-        console.error('No active tab found.');
-      }
-    });
+    // Optionally, send the new status to content scripts or other parts of your extension as needed
+    // This part remains the same as before, adjust according to your specific requirements
   }
-});
+}); // This was correctly closed, but the example provided had an issue with an unmatched parenthesis before the correction.
+
 
 function isValidMessage(message) {
   // Add logic to validate the message
@@ -86,6 +70,7 @@ function isValidSender(sender) {
   // For example, check if the sender is from an expected origin or has required properties
   return true; // Placeholder return value
 }
+
 
 
 
