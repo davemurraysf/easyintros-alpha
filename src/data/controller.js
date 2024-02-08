@@ -2,7 +2,7 @@
 
 // Function to send a message to the background script
 export const sendMessageToBackground = async (message) => {
-  console.log('Message sent via controller')
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
@@ -12,19 +12,22 @@ export const sendMessageToBackground = async (message) => {
         }
       });
     });
-  };
-  
-  // Function to listen for messages from the background script
-  export const listenForBackgroundMessages = (callback) => {
+  } else {
+    console.warn('chrome.runtime.sendMessage is not available.');
+    return Promise.reject(new Error('chrome.runtime.sendMessage is not available.'));
+  }
+};
+
+// Function to listen for messages from the background script
+export const listenForMessages = (handleMessage) => {
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      // Ensure that the message is from the background script
-      if (sender.id === chrome.runtime.id) {
-        // Invoke the callback function and pass the message and sendResponse function
-        callback(message, sendResponse);
-        console.log('Message recieved via controller')
-        // Return true to indicate that the response will be sent asynchronously
-        return true;
-      }
+      handleMessage(message, sender, sendResponse);
+      // Return true if you wish to send a response asynchronously (only required for onMessage event)
+      return true;
     });
-  };
+  } else {
+    console.warn('chrome.runtime.onMessage is not available.');
+  }
+};
   
