@@ -15,25 +15,29 @@ import {
 } from '@mui/icons-material';
 import { useDrag, useDrop } from 'react-dnd';
 
-// Function to send a message to the background script
-const sendMessageToBackground = async (message) => {
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(message, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
-        resolve(response);
-      }
-    });
-  });
-};
-
 // Define your draggable item types
 const ItemTypes = {
   CARD: 'card',
 };
 
-// Draggable Card Component
+// Function to send a message to the background script, with a check for chrome.runtime
+const sendMessageToBackground = async (message) => {
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  } else {
+    console.warn('chrome.runtime.sendMessage is not available.');
+    return Promise.reject(new Error('chrome.runtime.sendMessage is not available.'));
+  }
+};
+
 const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 'active' }) => {
   const ref = useRef(null);
   const [, drop] = useDrop({
@@ -59,27 +63,27 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   const [status, setStatus] = useState('active');
 
   useEffect(() => {
-    // Fetch the current status from local storage when the component mounts
-    chrome.storage.local.get(['status'], (result) => {
-      console.log('Status fetched from Chrome storage:', result.status);
-      if (result.status) {
-        setStatus(result.status);
-      }
-    });
+    // Check if chrome.storage.local is available before using it
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['status'], (result) => {
+        if (result.status) {
+          setStatus(result.status);
+        }
+      });
 
-    const handleStorageChange = (changes, area) => {
-      if (area === 'local' && changes.status) {
-        const newStatus = changes.status.newValue;
-        console.log('Status updated from Chrome storage:', newStatus);
-        setStatus(newStatus);
-      }
-    };
+      const handleStorageChange = (changes, area) => {
+        if (area === 'local' && changes.status) {
+          const newStatus = changes.status.newValue;
+          setStatus(newStatus);
+        }
+      };
 
-    chrome.storage.onChanged.addListener(handleStorageChange);
+      chrome.storage.onChanged.addListener(handleStorageChange);
 
-    return () => {
-      chrome.storage.onChanged.removeListener(handleStorageChange);
-    };
+      return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+    } else {
+      console.warn('Chrome storage API is not available.');
+    }
   }, []);
 
   const handleStartClick = async () => {
@@ -100,7 +104,7 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
       color: 'success',
       icon: <CheckCircleOutlineIcon />,
     },
-    // Add other status cases as needed
+    // Define other statuses as needed
   };
 
   return (
@@ -130,9 +134,3 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
 };
 
 export default DraggableCard;
-
-
-
-
-
-
