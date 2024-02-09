@@ -2,6 +2,24 @@ import { createContext, useState, useMemo } from "react";
 import { createTheme } from "@mui/material/styles";
 
 // color design tokens export
+
+/*
+const darkModeTokens = {
+  primary: "#1c1c1c",
+  OrangeAccent: "#fa9101",
+  blueAccent: "#39c9d4",
+  redAccent: "#ec3928",
+  grey: "#666666"
+};
+
+const lightModeTokens = {
+  primary: "#1c1c1c",
+  OrangeAccent: "#fa9101",
+  blueAccent: "#39c9d4",
+  redAccent: "#ec3928",
+  grey: "#666666"
+};
+*/ 
 export const tokens = (mode) => ({
   ...(mode === "dark"
     ? {
@@ -134,6 +152,9 @@ export const themeSettings = (mode) => {
             },
             secondary: {
               main: colors.greenAccent[500],
+            },
+            blueAccent:{
+              main: colors.blueAccent[500],
             },
             neutral: {
               dark: colors.grey[700],
