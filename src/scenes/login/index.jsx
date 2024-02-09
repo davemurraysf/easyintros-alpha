@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -24,10 +24,72 @@ const userSchema = yup.object().shape({
 const Login = ({ onLoginSuccess }) => {
     const [showPassword, setShowPassword] = useState(false);
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const navigate = useNavigate();
 
     const handleFormSubmit = async (values) => {
-        // Your existing form submission logic
+        try {
+            const response = await fetch('https://easyintros.com/api/1.1/wf/loginapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    Username: values.email,
+                    Password: values.password,
+                }),
+            });
+
+            const data = await response.json(); // Store the response data
+
+            if (data.status === 'success') {
+                const currentTime = Math.floor(Date.now() / 1000); 
+                const expirationTime = currentTime + data.response.expires; 
+                const userData = {
+                    userID: data.response.user_id,
+                    userToken: data.response.token,
+                    userTokenExpiration: expirationTime,
+                    email: values.email,
+                    password: values.password,
+                };
+
+                saveUserData(userData);
+                const userDataSaved = getUserData();
+                const userToken = userDataSaved.userToken;
+                try {
+                    // Make the API call with agencentricUsername and agencentricPassword
+                    
+                    const info = await fetchEasyIntrosUserInfo(userToken);
+                    console.log('Easy Intros API Response Login:', info);
+          
+                    // Update user info with Agencentric data
+                    const additionalUserInfo = {
+                      userID: info._id,
+                      UserStatus: info.token,
+                      AgencentricToken: info.AgencentricToken,
+                      UserFullName: info.FullName, 
+                      UserStatus: info.user_signed_up,
+                      InstagramPassword: info.InstagramPassword,
+                      InstagramUsername: info.InstagramUsername,
+                    };
+                    console.log("User info after login:", additionalUserInfo)
+                    saveUserInfo(additionalUserInfo);
+                  } catch (error) {
+                    console.error('Error fetching additional user info:', error);
+                  }
+                console.log("User Data after login:", userData)
+
+                // After successful login, navigate to the dashboard ("/")
+                navigate("/");
+
+                onLoginSuccess();
+            } else {
+                // Handle login failure
+                console.error('Login failed:', data);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+        }
     };
+
+
 
     return (
         <Box
