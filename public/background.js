@@ -11,6 +11,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Function to send a message to the content script
 function sendMessageToContent(tabId, message) {
+  console.log("Sent message to dom")
   return new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tabId, message, (response) => {
       if (chrome.runtime.lastError) {
@@ -21,6 +22,7 @@ function sendMessageToContent(tabId, message) {
     });
   });
 }
+
 
 // Keep track of tabs that are waiting for navigation completion
 const tabsWaitingForNavigation = {};
@@ -56,7 +58,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   } else if (message.action === 'start_navigation_with_input') {
     const targetUrl = message.targetUrl;
-    const inputValue = message.inputValue;
+    const inputValue = "dmurraySF";
 
     // Navigate to the target URL in a new tab
     chrome.tabs.create({ url: targetUrl, active: false }, (tab) => {

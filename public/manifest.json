@@ -9,11 +9,15 @@
     "tabs",
     "scripting",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "cookies"
   ],
   "host_permissions": [
     "*://*/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "icons": {
     "16": "Arowwai.png",
     "48": "Arowwai.png",
@@ -33,3 +37,4 @@
     }
   ]
 }
+

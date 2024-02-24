@@ -26,6 +26,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (usernameInput) {
         // Set the value of the input field to the received value
         usernameInput.value = message.inputValue;
+        console.log('Input value set:', message.inputValue);
       } else {
         console.error('Username input field not found.');
       }
