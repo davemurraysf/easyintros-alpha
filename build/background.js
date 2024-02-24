@@ -15,14 +15,15 @@ const tabsWaitingForNavigation = {};
 // Listener for messages from other parts of the extension
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'start_navigation') {
+    const targetUrl = message.targetUrl; // Extract targetUrl from the message
+
     // Navigate to the target URL in a new tab
-    const targetUrl = 'https://example.com'; // Placeholder URL, replace with your target
     chrome.tabs.create({ url: targetUrl, active: false }, (tab) => {
       // Function to handle tab update
       function handleTabUpdate(tabId, changeInfo) {
         if (tabId === tab.id && changeInfo.status === 'complete') {
           // Update the status in Chrome storage to indicate navigation completion
-          chrome.storage.local.set({status: 'navigation_completed'}, () => {
+          chrome.storage.local.set({ status: 'navigation_completed' }, () => {
             console.log('Navigation status updated to completed');
           });
 
@@ -39,11 +40,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
 
     // Return true to indicate an asynchronous response is expected
-    return true; // Indicates that the response will be sent asynchronously
+    return true;
   } else {
     console.error('Invalid message or sender information.');
     sendResponse({ error: 'Invalid message or sender information.' });
-    return false; // No asynchronous response expected
+    return false;
   }
 });
 
@@ -56,7 +57,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     // Optionally, send the new status to content scripts or other parts of your extension as needed
     // This part remains the same as before, adjust according to your specific requirements
   }
-}); // This was correctly closed, but the example provided had an issue with an unmatched parenthesis before the correction.
+});
 
 
 function isValidMessage(message) {

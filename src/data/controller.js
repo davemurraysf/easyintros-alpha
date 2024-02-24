@@ -18,6 +18,16 @@ export const sendMessageToBackground = async (message) => {
   }
 };
 
+// Function to start navigation
+export const startNavigation = async (targetUrl) => {
+  const message = {
+    action: 'start_navigation',
+    targetUrl: targetUrl, // Pass the targetUrl as part of the message
+  };
+  return sendMessageToBackground(message);
+};
+
+
 // Function to listen for messages from the background script
 export const listenForMessages = (handleMessage) => {
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
