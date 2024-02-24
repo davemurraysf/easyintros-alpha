@@ -8,6 +8,7 @@ import Login from "./scenes/login";
 import SettingsPage from "./scenes/settings";
 import { getUserData, clearUserData } from "./data/auth";
 import { clearUserInfo } from "./data/userinfo";
+import { clearUserTasks } from "./data/userTasks";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Provider } from 'react-redux'; // Import Provider
@@ -37,6 +38,7 @@ function App() {
   const handleLogout = () => {
     clearUserData();
     clearUserInfo();        // Clear user data from Local Storage
+    clearUserTasks();
     setIsAuthenticated(false); // Update state to reflect the user is logged out
   };
 

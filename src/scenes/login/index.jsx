@@ -7,7 +7,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import { saveUserData, getUserData } from '../../data/auth';
 import { saveUserInfo } from '../../data/userinfo';
-import { fetchEasyIntrosUserInfo } from '../../data/apis';
+import { saveUserTasks, getUserTasks } from '../../data/userTasks';
+import { fetchEasyIntrosUserInfo, fetchEasyIntrosTasks } from '../../data/apis';
 
 const initialValues = {
     email: "",
@@ -27,6 +28,11 @@ const Login = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
 
     const handleFormSubmit = async (values) => {
+        /*
+        -------------------------------------------------------------------------------------------------------------
+        Login API
+        -------------------------------------------------------------------------------------------------------------
+        */
         try {
             const response = await fetch('https://easyintros.com/api/1.1/wf/loginapi', {
                 method: 'POST',
@@ -53,9 +59,14 @@ const Login = ({ onLoginSuccess }) => {
                 saveUserData(userData);
                 const userDataSaved = getUserData();
                 const userToken = userDataSaved.userToken;
+        /*
+        -------------------------------------------------------------------------------------------------------------
+        EasyIntros Get UserInfo API
+        -------------------------------------------------------------------------------------------------------------
+        */
                 try {
                     // Make the API call with agencentricUsername and agencentricPassword
-                    
+
                     const info = await fetchEasyIntrosUserInfo(userToken);
                     console.log('Easy Intros API Response Login:', info);
           
@@ -63,7 +74,6 @@ const Login = ({ onLoginSuccess }) => {
                     const additionalUserInfo = {
                       userID: info._id,
                       UserStatus: info.token,
-                      AgencentricToken: info.AgencentricToken,
                       UserFullName: info.FullName, 
                       UserStatus: info.user_signed_up,
                       InstagramPassword: info.InstagramPassword,
@@ -75,7 +85,35 @@ const Login = ({ onLoginSuccess }) => {
                     console.error('Error fetching additional user info:', error);
                   }
                 console.log("User Data after login:", userData)
-
+            /*
+            -------------------------------------------------------------------------------------------------------------
+            EasyIntros Get UserTasks API
+            -------------------------------------------------------------------------------------------------------------
+            */
+            try {
+                // Make the API call with agencentricUsername and agencentricPassword
+                const Tasks = await fetchEasyIntrosTasks(userToken);
+                console.log('Easy Intros API Response Tasks:', Tasks);
+            
+                // Extract the Leads array from the API response
+                const { response: { Leads } } = Tasks;
+            
+                // Save the Leads array to localStorage using the saveUserTasks function
+                saveUserTasks(Leads);
+                
+                console.log("User Tasks after login:", Leads);
+            } catch (error) {
+                console.error('Error fetching additional user Tasks:', error);
+            }
+            const fullUserTasksList = getUserTasks();
+            const urlsList = fullUserTasksList.map(task => task.URL);
+            console.log("User Tasks after Login:", fullUserTasksList)
+            console.log('List of URLs for each task:', urlsList);
+            /*
+            -------------------------------------------------------------------------------------------------------------
+            Navigate the user to tthe dashboard
+            -------------------------------------------------------------------------------------------------------------
+            */
                 // After successful login, navigate to the dashboard ("/")
                 navigate("/");
 

@@ -3,29 +3,6 @@
 AgenCentric Post Login
 ------------------------------------------------------------------------------------------------------------------------
 */ 
-export const fetchAgencentricData = async (agencentricUsername, agencentricPassword) => {
-    try {
-      const response = await fetch('https://agencentric.com/api/1.1/wf/agencentricgeneratekey', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 0757a60f6e7043ad57abdc50d8d7cf9f' },
-        body: JSON.stringify({
-          email: agencentricUsername,
-          password: agencentricPassword,
-        }),
-      });
-  
-      const data = await response.json();
-  
-      if (data.status === 'success') {
-        return data.response; // Return the API response data
-      } else {
-        throw new Error('Agencentric API call failed');
-      }
-    } catch (error) {
-      throw new Error('Error during Agencentric API call: ' + error.message);
-    }
-  };
 /*
 ------------------------------------------------------------------------------------------------------------------------
 EasyIntros Get UserInfo
@@ -81,13 +58,13 @@ export const fetchEasyIntrosToken = async (EasyIntrosUsername, EasyIntrosPasswor
 
   /*
 ------------------------------------------------------------------------------------------------------------------------
-EasyIntros Get Leads
+EasyIntros Get Tasks
 ------------------------------------------------------------------------------------------------------------------------
 */ 
-export const fetchEasyIntrosleads = async (UserToken) => {
+export const fetchEasyIntrosTasks = async (UserToken) => {
   //console.log('Easy Intros UserToken API file:', UserToken);
   try {
-    const response = await fetch('https://easyintros.com/api/1.1/wf/GetUserLeads', {
+    const response = await fetch('https://easyintros.com/api/1.1/wf/getorgtasks', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json',
                   'Authorization': 'Bearer ' + UserToken }
