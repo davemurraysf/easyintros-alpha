@@ -9,6 +9,19 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// Function to send a message to the content script
+function sendMessageToContent(tabId, message) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(tabId, message, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else {
+        resolve(response);
+      }
+    });
+  });
+}
+
 // Keep track of tabs that are waiting for navigation completion
 const tabsWaitingForNavigation = {};
 
@@ -41,6 +54,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Return true to indicate an asynchronous response is expected
     return true;
+  } else if (message.action === 'start_navigation_with_input') {
+    const targetUrl = message.targetUrl;
+    const inputValue = message.inputValue;
+
+    // Navigate to the target URL in a new tab
+    chrome.tabs.create({ url: targetUrl, active: false }, (tab) => {
+      // Send input value to content script
+      sendMessageToContent(tab.id, { inputValue });
+
+      // Function to handle tab update
+      function handleTabUpdate(tabId, changeInfo) {
+        if (tabId === tab.id && changeInfo.status === 'complete') {
+          // Update the status in Chrome storage to indicate navigation completion
+          chrome.storage.local.set({ status: 'navigation_completed' }, () => {
+            console.log('Navigation status updated to completed');
+          });
+
+          // Close the tab after navigation is complete
+          //chrome.tabs.remove(tab.id);
+
+          // Cleanup: Remove the update listener to prevent memory leaks
+          //chrome.tabs.onUpdated.removeListener(handleTabUpdate);
+        }
+      }
+
+      // Listen for tab updates to detect when navigation is complete
+      chrome.tabs.onUpdated.addListener(handleTabUpdate);
+    });
+
+    // Return true to indicate an asynchronous response is expected
+    return true;
   } else {
     console.error('Invalid message or sender information.');
     sendResponse({ error: 'Invalid message or sender information.' });
@@ -59,7 +103,6 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-
 function isValidMessage(message) {
   // Add logic to validate the message
   // For example, check if the message is of a certain type or has required properties
@@ -71,6 +114,8 @@ function isValidSender(sender) {
   // For example, check if the sender is from an expected origin or has required properties
   return true; // Placeholder return value
 }
+
+
 
 
 

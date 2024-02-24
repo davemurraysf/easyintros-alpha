@@ -27,6 +27,15 @@ export const startNavigation = async (targetUrl) => {
   return sendMessageToBackground(message);
 };
 
+// Function to start navigation with input value
+export const startNavigationWithInput = async (targetUrl, inputValue) => {
+  const message = {
+    action: 'start_navigation_with_input',
+    targetUrl: targetUrl,
+    inputValue: inputValue,
+  };
+  return sendMessageToBackground(message);
+};
 
 // Function to listen for messages from the background script
 export const listenForMessages = (handleMessage) => {
@@ -40,4 +49,3 @@ export const listenForMessages = (handleMessage) => {
     console.warn('chrome.runtime.onMessage is not available.');
   }
 };
-  
