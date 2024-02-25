@@ -20,7 +20,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 
 
-// Example usage:
-// This content script listens for messages from the background script to input into text fields or click elements.
 
 

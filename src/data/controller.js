@@ -26,30 +26,37 @@ export const listenForMessages = (handleMessage) => {
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleMessage(message, sender, sendResponse);
-      // Return true if you wish to send a response asynchronously (only required for onMessage event)
       return true;
     });
   } else {
     console.warn('chrome.runtime.onMessage is not available.');
   }
 };
-
+/* 
+--------------------------------------------------------------------------------------------------------------------
+Sleep Funtion
+--------------------------------------------------------------------------------------------------------------------
+*/
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+/* 
+--------------------------------------------------------------------------------------------------------------------
+Example to test controls
+--------------------------------------------------------------------------------------------------------------------
+*/
 export async function navigateAndWaitAndClick(url, waitTime, elementSelector) {
   try {
     console.log("Message recieved by controller")
     await sendMessageToBackground({ action: 'navigate', url: url });
     console.log("Navigated")
-    await sendMessageToBackground({ action: 'waitFor', milliseconds: waitTime });
+    await sleep(30000)
     console.log("Wating")
     await sendMessageToBackground({ action: 'clickElement', selector: elementSelector });
     console.log("clicked")
+    await sendMessageToBackground({ action: 'closeTab'});
+    console.log("Tab closed")
   } catch (error) {
     console.error('Error performing actions:', error);
   }
 }
-
-// Example usage:
-// sendMessageToBackground({ action: 'navigate', url: 'https://example.com' });
-// sendMessageToBackground({ action: 'sendInput', selector: 'input#username', value: 'example_username' });
-// sendMessageToBackground({ action: 'clickElement', selector: 'button#submit' });
-// sendMessageToBackground({ action: 'waitFor', milliseconds: 3000 });
