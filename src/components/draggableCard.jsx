@@ -14,7 +14,7 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useDrag, useDrop } from 'react-dnd';
-import { sendMessageToBackground, listenForMessages, startNavigationWithInput } from '../data/controller';
+import { navigateAndWaitAndClick, listenForMessages } from '../data/controller';
 
 // Define your draggable item types
 const ItemTypes = {
@@ -80,7 +80,7 @@ const DraggableCard = ({ id, index, moveCard, removeCard, duplicateCard, type = 
   const handleStartClick = async () => {
     try {
       console.log('Sending message to background script...');
-      await startNavigationWithInput("https://www.instagram.com","dmurraySF");
+      await navigateAndWaitAndClick('https://example.com', 3000, 'a[href="https://www.iana.org/domains/example"]');
       console.log('Message sent to background script.');
     } catch (error) {
       console.error('Error sending message to background script:', error.message);

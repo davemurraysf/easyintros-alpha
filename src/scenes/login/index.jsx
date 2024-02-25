@@ -108,6 +108,7 @@ const Login = ({ onLoginSuccess }) => {
             const fullUserTasksList = getUserTasks();
             const urlsList = fullUserTasksList.map(task => task.URL);
             console.log("User Tasks after Login:", fullUserTasksList)
+            console.log("User Tasks after Login:", fullUserTasksList.length)
             console.log('List of URLs for each task:', urlsList);
             /*
             -------------------------------------------------------------------------------------------------------------
