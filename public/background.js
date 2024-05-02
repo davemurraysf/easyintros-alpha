@@ -13,8 +13,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'clickElement') {
     sendMessageToContent(lastCreatedTabId, { action: 'click', selector: message.selector }, sendResponse);
     return true;
-  }
-    else if (message.action === 'closeTab') {
+  }else if (message.action === 'clickAndSendKeys') {
+    sendMessageToContent(lastCreatedTabId, { action: 'clickAndSendKeys', selector: message.selector, keys: message.keys }, sendResponse);
+    return true;
+  } else if (message.action === 'closeTab') {
     closeTab(lastCreatedTabId, sendResponse);
     return true;
   } else if (message.action === 'waitFor') {
@@ -26,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Function to create a new tab and navigate to a URL
 function createNewTabAndNavigate(url, sendResponse) {
   console.log("Message Create new tab and navigate to", url);
-  chrome.tabs.create({ url: url, active: false }, (tab) => {
+  chrome.tabs.create({ url: url, active: true }, (tab) => {
     lastCreatedTabId = tab.id;
     sendResponse({ success: true }); 
   });

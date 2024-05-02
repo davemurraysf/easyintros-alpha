@@ -60,3 +60,32 @@ export async function navigateAndWaitAndClick(url, waitTime, elementSelector) {
     console.error('Error performing actions:', error);
   }
 }
+/* 
+--------------------------------------------------------------------------------------------------------------------
+IG Login build
+--------------------------------------------------------------------------------------------------------------------
+*/
+export async function IGLogin() {
+  try {
+    console.log("Message recieved by controller")
+    await sendMessageToBackground({ action: 'navigate', url: 'https://www.instagram.com/direct/t/17847198236521518' });
+    console.log("Navigated to instagram")
+    console.log("Starting Wait")
+    await sleep(30000)
+    console.log("Wating complete")
+    await sendMessageToBackground({ action: 'clickAndSendKeys', selector: 'input[name="username"]', keys: 'dmurraySF' });
+    console.log("Text inputed")
+    console.log("Starting Wait ")
+    await sleep(30000)
+    console.log("Wating complete")
+    //await sendMessageToBackground({ action: 'closeTab'});
+    //console.log("Tab closed")
+  } catch (error) {
+    console.error('Error performing actions:', error);
+  }
+}
+// Example usage:
+// sendMessageToBackground({ action: 'navigate', url: 'https://example.com' });
+// sendMessageToBackground({ action: 'sendInput', selector: 'input#username', value: 'example_username' });
+// sendMessageToBackground({ action: 'clickElement', selector: 'button#submit' });
+// sendMessageToBackground({ action: 'waitFor', milliseconds: 3000 });
