@@ -8,7 +8,7 @@ export const fetchAgencentricData = async (agencentricUsername, agencentricPassw
       const response = await fetch('https://agencentric.com/api/1.1/wf/agencentricgeneratekey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 0757a60f6e7043ad57abdc50d8d7cf9f' },
+                    'Authorization': 'Bearer token' },
         body: JSON.stringify({
           email: agencentricUsername,
           password: agencentricPassword,
